@@ -1,0 +1,28 @@
+apiVersion: loki.grafana.com/v1
+kind: LokiStack
+metadata:
+  name: logging-loki
+  namespace: openshift-logging
+spec:
+  limits:
+    global:
+      ingestion:
+        ingestionBurstSize: 16
+        ingestionRate: 8
+    tenants:
+      application:
+        ingestion:
+          ingestionBurstSize: 16
+          ingestionRate: 8
+  managementState: Managed
+  size: 1x.pico
+  storage:
+    schemas:
+      - effectiveDate: '2025-01-01'
+        version: v13
+    secret:
+      name: logging-loki-s3
+      type: s3
+  storageClassName: ocs-storagecluster-ceph-rbd
+  tenants:
+    mode: openshift-logging
