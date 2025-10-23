@@ -1,0 +1,43 @@
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  collector:
+    resources:
+      limits:
+        cpu: '2'
+        memory: 4Gi
+      requests:
+        cpu: '2'
+        memory: 4Gi
+  managementState: Managed
+  outputs:
+    - lokiStack:
+        authentication:
+          token:
+            from: serviceAccount
+        target:
+          name: logging-loki
+          namespace: openshift-logging
+        tuning:
+          compression: gzip
+          deliveryMode: AtLeastOnce
+          maxRetryDuration: 60
+          maxWrite: 32768
+          minRetryDuration: 5
+      name: lokistack-out
+      tls:
+        ca:
+          configMapName: openshift-service-ca.crt
+          key: service-ca.crt
+      type: lokiStack
+  pipelines:
+    - inputRefs:
+        - application
+      name: infra-app-logs
+      outputRefs:
+        - lokistack-out
+  serviceAccount:
+    name: logging-collector
